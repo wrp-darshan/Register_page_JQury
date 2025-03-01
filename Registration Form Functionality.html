@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="./style.css">
+    <link href="https://lottie.host/78a6dfef-3c78-4352-b68e-53bd63f943ab/yGLzxLFMSM.lottie">
+    <title>jQuery Form</title>
+    <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+  </head>
+
+<body>
+    <div class="form">
+        <form id="form">
+            <div>
+                <label>First Name:</label>
+                <input type="text" name="firstname" />
+                <span class="error firstname-error"></span>
+            </div>
+            <div>
+                <label>Last Name:</label>
+                <input type="text" name="lastname" />
+                <span class="error lastname-error"></span>
+            </div>
+            <div>
+                <label>Email:</label>
+                <input type="email" name="mail" />
+                <span class="error email-error"></span>
+            </div>
+            <div>
+                <label>Mobile No.:</label>
+                <input type="text" name="mobile" />
+                <span class="error mobile-error"></span>
+            </div>
+            <div>
+                <label>Gender:</label>
+                <input type="radio" name="gender" value="male" /> Male
+                <input type="radio" name="gender" value="female" /> Female
+                <span class="error gender-error"></span>
+            </div>
+            <div name="female" style="display: none;">
+                <label>Hobby:</label>
+                <input type="checkbox" name="Drawing">Drawing
+                <input type="checkbox" name="Cooking">Cooking
+                <input type="checkbox" name="Traveling">Traveling
+            </div>
+            <div name="male" style="display: none;">
+                <label>Hobby:</label>
+                <input type="checkbox" name="Play">Play
+                <input type="checkbox" name="Movie">Movie
+                <input type="checkbox" name="Traveling">Traveling
+            </div>
+            <div>
+                <label>Country:</label>
+                <select name="country">
+                    <option value="b">Select Country</option>
+                    <option value="USA">USA</option>
+                    <option value="UK">UK</option>
+                    <option value="India">India</option>
+                    <option value="China">China</option>
+                </select>
+                <span class="error country-error"></span>
+            </div>
+            <div>
+                <button type="submit">Submit</button>
+            </div>
+        </form>
+
+        <div>
+            <table id="dataTable" style="display: none; width: 100%;">
+                <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Mobile No.</th>
+                        <th>Gender</th>
+                        <th>Country</th>
+                        <th>Hobby</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            
+        </div>
+    </div>
+    <div class="popup" style="display: none;"> 
+        <dotlottie-player src="https://lottie.host/78a6dfef-3c78-4352-b68e-53bd63f943ab/yGLzxLFMSM.lottie" background="transparent" speed="1" style="width: 100px; height: 100px" loop autoplay></dotlottie-player>
+
+        <h3>Thank you for submitting the form!</h3>
+        <button class="close-popup">Close</button>
+    </div>
+    <script>
+        $(function () {
+            function showError(input, message) {
+                $(input).closest("div").find(".error").text(message).fadeIn();
+            }
+
+            function clearError(input) {
+                $(input).closest("div").find(".error").fadeOut();
+            }
+
+            $('input[name="firstname"], input[name="lastname"]').on('keypress', function (event) {
+                let charCode = event.which;
+                if ((charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122)) {
+                    clearError(this);
+                } else {
+                    showError(this, "Only alphabets are allowed.");
+                    event.preventDefault();
+                }
+            });
+
+            $('input[name="mail"]').on('input', function () {
+                let email = $(this).val();
+                let emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+                if (emailRegex.test(email)) {
+                    clearError(this);
+                } else {
+                    showError(this, "Invalid email format.");
+                }
+            });
+
+            $('form').on('keypress', 'input[name="mobile"]', function (event) {
+                let charCode = event.which;
+                if (charCode < 48 || charCode > 57) {
+                    event.preventDefault();
+                }
+            });
+
+            $('form').on('input', 'input[name="mobile"]', function () {
+                const $inputField = $(this).closest('div').find('input[name="mobile"]');
+                const $errorSpan = $(this).closest('div').find('.mobile-error');
+
+                let mobile = $inputField.val();
+                if (mobile.length > 10) {
+                    $inputField.val(mobile.slice(0, 10));
+                    $errorSpan.text("Mobile number can't exceed 10 digits").fadeIn();
+                } else {
+                    $errorSpan.fadeOut();
+                }
+            });
+
+            $("input[name='gender']").on("change", function () {
+                let gender = $(this).val();
+                if (gender === "male") {
+                    $("div[name='male']").fadeIn();
+                    $("div[name='female']").hide();
+                } else {
+                    $("div[name='female']").fadeIn();
+                    $("div[name='male']").hide();
+                }
+                clearError(this);
+            });
+
+            $("#form").on("submit", function (event) {
+                event.preventDefault();
+
+                $(".error").fadeOut();
+
+                
+
+                let $form = $(this);
+                let firstname = $form.find('input[name="firstname"]').val();
+                let lastname = $form.find('input[name="lastname"]').val();
+                let email = $form.find('input[name="mail"]').val();
+                let mobile = $form.find('input[name="mobile"]').val();
+                let gender = $form.find("input[name='gender']:checked").val();
+                let country = $form.find("select[name='country']").val();
+
+                let hobbies = [];
+                $form.find(`div[name='${gender}'] input[type='checkbox']:checked`).each(function () {
+                    hobbies.push($(this).attr("name"));
+                });
+
+                if (!firstname) showError($form.find('input[name="firstname"]'), "First name is required.");
+                if (!lastname) showError($form.find('input[name="lastname"]'), "Last name is required.");
+                if (!email) showError($form.find('input[name="mail"]'), "Email is required.");
+                if (!mobile) showError($form.find('input[name="mobile"]'), "Mobile number is required.");
+                if (!gender) showError($form.find("input[name='gender']"), "Please select a gender.");
+                if (country === "b") showError($form.find("select[name='country']"), "Please select a country.");
+
+               
+
+                if (!firstname || !lastname || !email || !mobile || !gender || country === "b"){
+                    return;
+                }else{
+                    $(".popup").fadeIn();
+                    $(".close-popup").click(function () {
+                        $(".popup").fadeOut();
+                    });
+                }
+
+                $form.fadeOut();
+                $("#dataTable").fadeIn();
+                $("#dataTable tbody").append(`
+            <tr>
+                <td>${firstname}</td>
+                <td>${lastname}</td>
+                <td>${email}</td>
+                <td>${mobile}</td>
+                <td>${gender}</td>
+                <td>${country}</td>
+                <td>${hobbies.length > 0 ? hobbies.join(", ") : "None"}</td>
+            </tr>
+        `);
+            });
+        });
+
+    </script>
+</body>
+
+</html>
